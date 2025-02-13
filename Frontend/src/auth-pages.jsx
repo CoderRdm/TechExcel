@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const SignUpPage = () => {
+export const SignUpPage = ({ onBackToHome }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -8,24 +8,49 @@ const SignUpPage = () => {
     confirmPassword: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-  };
+    if (formData.password !== formData.confirmPassword) {
+        alert('Passwords do not match');
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: formData.name,
+                email: formData.email,
+                password: formData.password
+            })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert('Signup successful');
+            onBackToHome(); // Redirect to login page
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 to-indigo-600 py-16 px-4">
       <div className="max-w-md mx-auto">
-        {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <a href="/" className="text-3xl font-bold text-white">
+          <button 
+            onClick={onBackToHome}
+            className="text-3xl font-bold text-white hover:text-blue-100 transition"
+          >
             Resume Builder
-          </a>
+          </button>
           <p className="mt-2 text-blue-100">Create your account to get started</p>
         </div>
 
-        {/* Sign Up Form */}
         <div className="bg-white rounded-xl shadow-xl p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Sign Up
@@ -91,7 +116,6 @@ const SignUpPage = () => {
             </button>
           </form>
 
-          {/* Social Sign Up */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -112,12 +136,14 @@ const SignUpPage = () => {
             </div>
           </div>
 
-          {/* Sign In Link */}
           <p className="mt-8 text-center text-sm text-gray-600">
             Already have an account?{' '}
-            <a href="/login" className="text-blue-600 hover:text-blue-500 font-semibold">
+            <button
+              onClick={onBackToHome}
+              className="text-blue-600 hover:text-blue-500 font-semibold"
+            >
               Sign in
-            </a>
+            </button>
           </p>
         </div>
       </div>
@@ -125,31 +151,57 @@ const SignUpPage = () => {
   );
 };
 
-const LoginPage = () => {
+export const LoginPage = ({ onBackToHome }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-  };
+
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: formData.email,
+                password: formData.password
+            })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            localStorage.setItem('token', data.token); // Store JWT token
+            alert('Login successful');
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+const handleLogout = () => {
+    localStorage.removeItem('token');
+    alert('Logged out successfully');
+    navigate('/login');
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 to-indigo-600 py-16 px-4">
       <div className="max-w-md mx-auto">
-        {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <a href="/" className="text-3xl font-bold text-white">
+          <button 
+            onClick={onBackToHome}
+            className="text-3xl font-bold text-white hover:text-blue-100 transition"
+          >
             Resume Builder
-          </a>
+          </button>
           <p className="mt-2 text-blue-100">Welcome back! Please sign in to continue</p>
         </div>
 
-        {/* Login Form */}
         <div className="bg-white rounded-xl shadow-xl p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Sign In
@@ -194,9 +246,9 @@ const LoginPage = () => {
                   Remember me
                 </label>
               </div>
-              <a href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+              <button className="text-sm text-blue-600 hover:text-blue-500">
                 Forgot password?
-              </a>
+              </button>
             </div>
             <button
               type="submit"
@@ -206,7 +258,6 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* Social Login */}
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -227,17 +278,17 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Sign Up Link */}
           <p className="mt-8 text-center text-sm text-gray-600">
             Don't have an account?{' '}
-            <a href="/signup" className="text-blue-600 hover:text-blue-500 font-semibold">
+            <button
+              onClick={onBackToHome}
+              className="text-blue-600 hover:text-blue-500 font-semibold"
+            >
               Sign up
-            </a>
+            </button>
           </p>
         </div>
       </div>
     </div>
   );
 };
-
-export default { SignUpPage, LoginPage };
