@@ -5,44 +5,49 @@ export const SignUpPage = ({ onBackToHome }) => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
-        alert('Passwords do not match');
-        return;
+      alert('Passwords do not match');
+      return;
     }
 
     try {
-        const response = await fetch('http://localhost:3000/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: formData.name,
-                email: formData.email,
-                password: formData.password
-            })
-        });
+      const response = await fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+        credentials: 'include', // Include credentials for cookies
+      });
 
-        const data = await response.json();
-        if (response.ok) {
-            alert('Signup successful');
-            onBackToHome(); // Redirect to login page
-        } else {
-            alert(data.error);
-        }
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Signup successful');
+        onBackToHome(); // Redirect to login page
+      } else {
+        alert(data.error || 'Signup failed');
+      }
     } catch (error) {
-        console.error('Error:', error);
+      console.error('Error:', error);
+      alert('An error occurred during signup');
     }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 to-indigo-600 py-16 px-4">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
-          <button 
+          <button
             onClick={onBackToHome}
             className="text-3xl font-bold text-white hover:text-blue-100 transition"
           >
@@ -52,9 +57,7 @@ export const SignUpPage = ({ onBackToHome }) => {
         </div>
 
         <div className="bg-white rounded-xl shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Sign Up
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Sign Up</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -155,45 +158,41 @@ export const LoginPage = ({ onBackToHome }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    rememberMe: false
+    rememberMe: false,
   });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-        const response = await fetch('http://localhost:3000/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: formData.email,
-                password: formData.password
-            })
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-            localStorage.setItem('token', data.token); // Store JWT token
-            alert('Login successful');
-        } else {
-            alert(data.error);
-        }
+      const response = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+        credentials: "include",
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Login failed");
+      }
+  
+      const data = await response.json();
+      localStorage.setItem("token", data.token); // Store the token
+      window.location.href = "/create-template"; // Redirect to the template page
     } catch (error) {
-        console.error('Error:', error);
+      console.error("Error:", error.message || error);
+      alert("An error occurred: " + error.message);
     }
-};
-
-const handleLogout = () => {
-    localStorage.removeItem('token');
-    alert('Logged out successfully');
-    navigate('/login');
-};
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 to-indigo-600 py-16 px-4">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
-          <button 
+          <button
             onClick={onBackToHome}
             className="text-3xl font-bold text-white hover:text-blue-100 transition"
           >
@@ -203,9 +202,7 @@ const handleLogout = () => {
         </div>
 
         <div className="bg-white rounded-xl shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Sign In
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Log In</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -254,7 +251,7 @@ const handleLogout = () => {
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
             >
-              Sign In
+              Log In
             </button>
           </form>
 
