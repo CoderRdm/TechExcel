@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { SignUpPage, LoginPage } from "./auth-pages";
+import CreateTemplatePage from "./CreateTemplateForm";
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState("home");
@@ -9,7 +10,16 @@ const App = () => {
   }
 
   if (currentPage === "login") {
-    return <LoginPage onBackToHome={() => setCurrentPage("home")} />;
+    return (
+      <LoginPage
+        onBackToHome={() => setCurrentPage("home")}
+        onLoginSuccess={() => setCurrentPage("createTemplate")} // Redirect to "Create Template" page
+      />
+    );
+  }
+
+  if (currentPage === "createTemplate") {
+    return <CreateTemplatePage onBackToHome={() => setCurrentPage("home")} />;
   }
 
   const features = [
@@ -57,7 +67,7 @@ const App = () => {
           </div>
           <div className="flex items-center space-x-4">
             <button onClick={() => setCurrentPage("login")} className="hidden md:block px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition">
-              log In
+              Log In
             </button>
             <button onClick={() => setCurrentPage("signup")} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
               Get Started

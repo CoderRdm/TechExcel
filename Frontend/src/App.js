@@ -4,6 +4,8 @@ import LoginPage from "./auth-pages"; // Ensure this exports LoginPage correctly
 import SignUpPage from "./auth-pages"; // Ensure this exports SignUpPage correctly
 import CreateTemplateForm from "./CreateTemplateForm"; // Import the CreateTemplateForm component
 import ProtectedRoute from "./ProtectedRoute";
+import App from "./App";
+import "./App.jsx"
 
 // Assuming you have a TemplatePage component
 import TemplatePage from "./TemplatePage"; // Import the TemplatePage component
